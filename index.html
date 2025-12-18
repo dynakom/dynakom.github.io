@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biodata Diri - Dina Amalina</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <main class="container">
+        <div class="glass-card fade-in">
+            <div class="profile-section">
+                <button id="edit-toggle" class="edit-btn" title="Edit Profil">
+                    <i class="fas fa-pen"></i>
+                </button>
+                <div class="profile-image-container">
+                    <img src="profile.png" alt="Foto Profil" class="profile-image" id="profile-img">
+                    <input type="file" id="img-upload" accept="image/*" style="display: none;">
+                    <div class="status-badge" title="Status: Mahasiswa Aktif"></div>
+                </div>
+                <h1 class="name" id="name-display">Dina Amalina</h1>
+                <p class="subtitle" id="role-display">Mahasiswa Sistem Informasi</p>
+
+                <div class="social-links" id="social-display">
+                    <a href="https://instagram.com" target="_blank" class="social-btn" id="link-instagram"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://facebook.com" target="_blank" class="social-btn" id="link-facebook"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://github.com" target="_blank" class="social-btn" id="link-github"><i
+                            class="fab fa-github"></i></a>
+                </div>
+                <!-- Inputs for social links (hidden by default) -->
+                <div class="social-inputs hidden" id="social-inputs">
+                    <input type="text" class="edit-input social-in" id="in-instagram" placeholder="Link Instagram">
+                    <input type="text" class="edit-input social-in" id="in-facebook" placeholder="Link Facebook">
+                    <input type="text" class="edit-input social-in" id="in-github" placeholder="Link GitHub">
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2 class="section-title">Data Pribadi</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-user-tag"></i></div>
+                        <div class="info-content">
+                            <span class="label">Nama Lengkap</span>
+                            <span class="value" id="val-fullname">Dina Amalina</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="info-content">
+                            <span class="label">Alamat</span>
+                            <span class="value" id="val-address">Jl. Contoh No. 123, Kota, Provinsi</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-envelope"></i></div>
+                        <div class="info-content">
+                            <span class="label">Email</span>
+                            <span class="value" id="val-email">dina.amalina@example.com</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-phone-alt"></i></div>
+                        <div class="info-content">
+                            <span class="label">No. Telepon</span>
+                            <span class="value" id="val-phone">0812-3456-7890</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-praying-hands"></i></div>
+                        <div class="info-content">
+                            <span class="label">Agama</span>
+                            <span class="value" id="val-religion-text">Islam</span>
+                            <select id="val-religion-select" class="edit-input hidden">
+                                <option value="Islam">Islam</option>
+                                <option value="Kristen">Kristen</option>
+                                <option value="Katolik">Katolik</option>
+                                <option value="Hindu">Hindu</option>
+                                <option value="Buddha">Buddha</option>
+                                <option value="Konghucu">Konghucu</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-user-check"></i></div>
+                        <div class="info-content">
+                            <span class="label">Status</span>
+                            <span class="value" id="val-status-text">Mahasiswa Aktif</span>
+                            <select id="val-status-select" class="edit-input hidden">
+                                <option value="Mahasiswa Aktif">Mahasiswa Aktif</option>
+                                <option value="Cuti">Cuti</option>
+                                <option value="Lulus">Lulus</option>
+                                <option value="Drop Out">Drop Out</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-birthday-cake"></i></div>
+                        <div class="info-content">
+                            <span class="label">Tempat, Tanggal Lahir</span>
+                            <span class="value" id="val-dob-text">Jakarta, 1 Januari 2003</span>
+                            <div class="dob-edit-container">
+                                <input type="text" id="val-pob-input" class="edit-input hidden"
+                                    placeholder="Tempat Lahir">
+                                <input type="date" id="val-dob-input" class="edit-input hidden">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="info-content">
+                            <span class="label">Usia</span>
+                            <span class="value" id="age-display">20 Tahun</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="section-title mt-4">Data Akademik</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-university"></i></div>
+                        <div class="info-content">
+                            <span class="label">Kampus</span>
+                            <span class="value" id="val-campus">Universitas Contoh</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-building"></i></div>
+                        <div class="info-content">
+                            <span class="label">Fakultas</span>
+                            <span class="value" id="val-faculty">Fakultas Ilmu Komputer</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-laptop-code"></i></div>
+                        <div class="info-content">
+                            <span class="label">Program Studi</span>
+                            <span class="value" id="val-prostudy">Sistem Informasi</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-id-card"></i></div>
+                        <div class="info-content">
+                            <span class="label">NIM</span>
+                            <span class="value" id="val-nim">123456789</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Profile Photo Modal -->
+    <div class="modal-overlay" id="photo-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ubah Foto Profil</h3>
+                <button class="close-modal" id="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="photo-options" id="photo-options-grid">
+                <button class="photo-option-btn" id="btn-camera">
+                    <i class="fas fa-camera"></i>
+                    <span>Ambil Foto</span>
+                </button>
+                <button class="photo-option-btn" id="btn-upload">
+                    <i class="fas fa-upload"></i>
+                    <span>Pilih File</span>
+                </button>
+                <button class="photo-option-btn" id="btn-select-avatar" style="grid-column: span 2;">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Pilih Avatar</span>
+                </button>
+                <button class="photo-option-btn delete-btn" id="btn-delete-photo">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Hapus Foto</span>
+                </button>
+            </div>
+
+            <!-- Avatar Selection View (Hidden by default) -->
+            <div class="avatar-selection-view" id="avatar-selection-ui" style="display: none;">
+                <div class="modal-subheader">
+                    <button class="back-btn" id="btn-back-avatar"><i class="fas fa-arrow-left"></i></button>
+                    <span>Pilih Karakter</span>
+                </div>
+                <div class="avatar-grid" id="avatar-grid-container">
+                    <!-- Avatars will be injected here by JS -->
+                </div>
+            </div>
+
+            <!-- Camera UI (Hidden by default) -->
+            <div class="camera-ui" id="camera-ui">
+                <video id="video-preview" autoplay playsinline></video>
+                <canvas id="canvas-capture" style="display: none;"></canvas>
+                <div class="camera-controls">
+                    <button class="action-btn btn-primary" id="btn-capture">Ambil Gambar</button>
+                    <button class="action-btn btn-secondary" id="btn-cancel-camera">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

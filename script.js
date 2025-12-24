@@ -60,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     editBtn.addEventListener('click', () => {
         if (!isEditing) {
             const pw = prompt("Masukkan Password untuk Edit (Kosongkan jika hanya ingin mencoba fitur):");
+
+            // Jika user menekan Cancel, jangan masuk ke mode edit
+            if (pw === null) return;
+
             if (pw === ADMIN_PASSWORD) {
                 isOwner = true;
                 showToast("Mode Admin Aktif - Perubahan akan disimpan.", "success");

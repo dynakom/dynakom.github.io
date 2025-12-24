@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'val-campus', 'val-faculty', 'val-prostudy', 'val-nim'
     ];
     let isEditing = false;
+    let isOwner = false;
+    const ADMIN_PASSWORD = "123"; // Ganti sesuai keinginan
 
     // Special Fields elements
     const dobText = document.getElementById('val-dob-text');
@@ -36,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize DOB input value from text (Approximate for initial load)
-    dobInput.value = '2003-01-01'; // Default
+    dobInput.value = '2006-04-30'; // Updated to match HTML
     calculateAge(new Date(dobInput.value));
 
     // Load Data from LocalStorage (Overrides default if data exists)
@@ -54,25 +56,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300 + (index * 100));
     });
 
-    const card = document.querySelector('.glass-card');
-    const container = document.querySelector('.container');
-    container.addEventListener('mousemove', (e) => {
-        if (window.innerWidth < 768) return;
-        const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-        const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-        card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-    });
-    container.addEventListener('mouseleave', () => {
-        card.style.transition = 'transform 0.5s ease';
-        card.style.transform = `rotateY(0deg) rotateX(0deg)`;
-        setTimeout(() => card.style.transition = 'none', 500);
-    });
-    container.addEventListener('mouseenter', () => card.style.transition = 'none');
-
     // ---- EDIT LOGIC ----
     editBtn.addEventListener('click', () => {
-        isEditing = !isEditing;
-        toggleEditState(isEditing);
+        if (!isEditing) {
+            const pw = prompt("Masukkan Password untuk Edit (Kosongkan jika hanya ingin mencoba fitur):");
+            if (pw === ADMIN_PASSWORD) {
+                isOwner = true;
+                showToast("Mode Admin Aktif - Perubahan akan disimpan.", "success");
+            } else {
+                isOwner = false;
+                showToast("Mode Simulasi - Perubahan TIDAK akan disimpan secara permanen.", "warning");
+            }
+            isEditing = true;
+            toggleEditState(true);
+        } else {
+            isEditing = false;
+            toggleEditState(false);
+        }
     });
 
     function toggleEditState(editing) {
@@ -103,12 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
             statusSelect.value = statusText.textContent;
 
             // Handle DOB & POB
-            // Parse existing text only if inputs are empty, otherwise keep input values (state)
             const fullDob = dobText.textContent;
             const splitDob = fullDob.split(', ');
             let currentPob = splitDob[0];
-            // Better logic: if we already have a value in input, use it. But usually we want to sync from text if text was loaded from storage.
-            // Since we update text on Save, text is the source of truth when viewing.
             if (splitDob.length < 2) currentPob = "Jakarta";
 
             pobInput.value = currentPob;
@@ -121,10 +118,20 @@ document.addEventListener('DOMContentLoaded', () => {
             socialDisplay.classList.add('hidden');
             socialInputs.classList.remove('hidden');
 
-            // Pre-fill social inputs with current hrefs
             Object.keys(socialLinks).forEach(key => {
                 socialLinks[key].input.value = socialLinks[key].btn.href;
             });
+
+            // Add Demo Badge if not owner
+            if (!isOwner) {
+                const nameDisplay = document.getElementById('name-display');
+                if (!document.querySelector('.demo-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'demo-badge';
+                    badge.textContent = 'Simulasi';
+                    nameDisplay.appendChild(badge);
+                }
+            }
 
         } else {
             // Save and Switch to View Mode
@@ -141,18 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Handle Special Fields (Show Text)
-            // Handle DOB & POB
             dobText.classList.remove('hidden');
             pobInput.classList.add('hidden');
             dobInput.classList.add('hidden');
 
-            // Format Date for Display
             const dateObj = new Date(dobInput.value);
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             const place = pobInput.value || "Jakarta";
             dobText.textContent = `${place}, ${dateObj.toLocaleDateString('id-ID', options)}`;
 
-            // Handle Religion & Status
             religionText.classList.remove('hidden');
             religionSelect.classList.add('hidden');
             religionText.textContent = religionSelect.value;
@@ -161,11 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
             statusSelect.classList.add('hidden');
             statusText.textContent = statusSelect.value;
 
-            // Handle Socials
             socialDisplay.classList.remove('hidden');
             socialInputs.classList.add('hidden');
 
-            // Update Hrefs
             Object.keys(socialLinks).forEach(key => {
                 let url = socialLinks[key].input.value;
                 if (url && !url.startsWith('http')) url = 'https://' + url;
@@ -173,48 +175,50 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // SAVE DATA
-            saveData();
+            if (isOwner) {
+                saveData();
+                showToast("Data berhasil disimpan secara permanen!", "success");
+            } else {
+                showToast("Perubahan simulasi selesai (Data asli tetap terjaga)", "info");
+                const badge = document.querySelector('.demo-badge');
+                if (badge) badge.remove();
+            }
         }
     }
 
     function saveData() {
         const data = {};
-        // Save text fields
         editableIds.forEach(id => {
             const el = document.getElementById(id);
             if (el) data[id] = el.textContent;
         });
 
-        // Save special fields
         data['dob'] = dobInput.value;
         data['pob'] = pobInput.value;
         data['religion'] = religionSelect.value;
         data['status'] = statusSelect.value;
         data['profileImg'] = profileImg.src;
 
-        // Save socials
         const socials = {};
         Object.keys(socialLinks).forEach(key => {
             socials[key] = socialLinks[key].btn.href;
         });
         data['socials'] = socials;
 
-        localStorage.setItem('biodata_dina', JSON.stringify(data));
+        localStorage.setItem('biodata_dina_v2', JSON.stringify(data));
     }
 
     function loadData() {
-        const saved = localStorage.getItem('biodata_dina');
+        const saved = localStorage.getItem('biodata_dina_v2');
         if (!saved) return;
 
         const data = JSON.parse(saved);
 
-        // Load text fields
         editableIds.forEach(id => {
             const el = document.getElementById(id);
             if (el && data[id]) el.textContent = data[id];
         });
 
-        // Load special fields
         if (data['dob'] || data['pob']) {
             if (data['dob']) dobInput.value = data['dob'];
             if (data['pob']) pobInput.value = data['pob'];
@@ -241,18 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
             profileImg.src = data['profileImg'];
         }
 
-        // Load socials
         if (data['socials']) {
             Object.keys(socialLinks).forEach(key => {
                 if (data['socials'][key]) {
                     socialLinks[key].btn.href = data['socials'][key];
-                    socialLinks[key].input.value = data['socials'][key]; // pre-fill input just in case
+                    socialLinks[key].input.value = data['socials'][key];
                 }
             });
         }
     }
 
-    // Dynamic Age Update
     dobInput.addEventListener('change', () => {
         calculateAge(new Date(dobInput.value));
     });
@@ -269,12 +271,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ageDisplay.textContent = `${age} Tahun`;
     }
 
-    // Image Upload Handling
     // ---- MODAL & PHOTO LOGIC ----
     const modal = document.getElementById('photo-modal');
     const closeModalBtn = document.getElementById('close-modal');
     const optionsGrid = document.getElementById('photo-options-grid');
     const cameraUI = document.getElementById('camera-ui');
+    const avatarSelectionUI = document.getElementById('avatar-selection-ui');
+    const avatarGrid = document.getElementById('avatar-grid-container');
 
     function openModal() {
         modal.classList.add('active');
@@ -289,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetModalView() {
         optionsGrid.style.display = 'grid';
         cameraUI.classList.remove('active');
-        if (typeof avatarSelectionUI !== 'undefined') avatarSelectionUI.style.display = 'none';
+        if (avatarSelectionUI) avatarSelectionUI.style.display = 'none';
         stopCamera();
     }
 
@@ -298,8 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === modal) closeModal();
     });
 
-    // 1. File Upload
-    // Keep existing change listener, just trigger click from modal
     document.getElementById('btn-upload').addEventListener('click', () => {
         imgUpload.click();
         closeModal();
@@ -315,12 +316,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. Camera Logic
     let stream = null;
     const video = document.getElementById('video-preview');
     const canvas = document.getElementById('canvas-capture');
 
-    // Check if camera support exists
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         document.getElementById('btn-camera').style.display = 'none';
     }
@@ -335,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stream = await navigator.mediaDevices.getUserMedia({ video: true });
             video.srcObject = stream;
         } catch (err) {
-            alert("Tidak dapat mengakses kamera. Pastikan izin diberikan atau gunakan HTTPS/Localhost.\nError: " + err.message);
+            alert("Tidak dapat mengakses kamera.");
             resetModalView();
         }
     }
@@ -352,19 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const context = canvas.getContext('2d');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-
-        // Horizontal flip for mirror effect consistency if desired, or simpler:
         context.translate(canvas.width, 0);
         context.scale(-1, 1);
-
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         profileImg.src = canvas.toDataURL('image/png');
         closeModal();
     });
-
-    // 3. Avatar Logic
-    const avatarSelectionUI = document.getElementById('avatar-selection-ui');
-    const avatarGrid = document.getElementById('avatar-grid-container');
 
     document.getElementById('btn-select-avatar').addEventListener('click', () => {
         optionsGrid.style.display = 'none';
@@ -375,62 +367,43 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-back-avatar').addEventListener('click', resetModalView);
 
     function loadAvatars() {
-        if (avatarGrid.children.length > 0) return; // Already loaded
-
-        const seeds = [
-            "Felix", "Aneka", "Zack", "Molly", "Buster", "Simba", "Baby", "Lola", "Leo", "Bella",
-            "Jack", "Daisy", "Buddy", "Cleo", "Toby", "Lucy", "Max", "Luna", "Oliver", "Kitty"
-        ];
-
+        if (avatarGrid.children.length > 0) return;
+        const seeds = ["Felix", "Aneka", "Zack", "Molly", "Buster", "Simba", "Baby", "Lola", "Leo", "Bella"];
         seeds.forEach(seed => {
-            // Using 'adventurer' style for a more "Pinterest-aesthetic" illustrative look
-            createAvatarItem(`https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9`);
+            const div = document.createElement('div');
+            div.className = 'avatar-item';
+            div.innerHTML = `<img src="https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9" alt="Avatar">`;
+            div.onclick = () => {
+                profileImg.src = div.querySelector('img').src;
+                closeModal();
+            };
+            avatarGrid.appendChild(div);
         });
     }
 
-    function createAvatarItem(url) {
-        const div = document.createElement('div');
-        div.className = 'avatar-item';
-        div.innerHTML = `<img src="${url}" loading="lazy" alt="Avatar">`;
-        div.onclick = () => {
-            profileImg.src = url;
-            closeModal();
-        };
-        avatarGrid.appendChild(div);
-    }
-
-    // Override resetModalView to handle avatar selection visibility
-    // Note: We need to redefine it or update the original definition.
-    // Since 'resetModalView' was defined with 'function' keyword inside the scope, we can overwrite it if it was 'let' or modify its behavior if we access the same scope.
-    // However, it was defined as 'function resetModalView()'. In JS strict mode inside block, this might be tricky.
-    // Easier: Just update the `resetModalView` definition earlier in the file? 
-    // Or, realizing I can't easily change the earlier function definition without a big replace.
-    // I will just add the line `avatarSelectionUI.style.display = 'none';` to the existing `resetModalView` by redefining it here if possible or I'll just attach it to the `resetModalView` calls?
-    // Actually, I can just create a NEW function `fullReset()` and use that, but `resetModalView` is called in other places.
-    // Let's replace the `resetModalView` definition up top.
-
-    // Wait, I am in the middle of replacing the avatar logic block.
-    // I will just make sure `resetModalView` updates the display of `avatarSelectionUI` by re-assigning it if it's not const.
-    // Ah, it was `function resetModalView() {...}`.
-    // I will just copy the logic effectively.
-
-    // Better strategy: I will replace the Avatar Logic block AND the resetModalView block in one go? 
-    // No, `resetModalView` is earlier (around line 183).
-    // I will just add `avatarSelectionUI.style.display = 'none';` in the `document.getElementById('btn-cancel-camera').addEventListener` which calls `resetModalView`.
-    // Actually, `resetModalView` is called by `openModal` too. 
-    // I'll leave `resetModalView` as is for now, and just ensure MY new code handles the resetting correctly.
-    // When I click 'back', I call `resetModalView`. `resetModalView` shows `optionsGrid`.
-    // But it doesn't hide `avatarSelectionUI`. 
-    // I will simply add a line to hide it in the `resetModalView` definition in a separate replacement call.
-    // For now, let's just implement the Logic. I will handle the resetModalView update in next step.
-
-    // 4. Delete Photo
-    // 4. Delete Photo (Default Empty Profile)
     document.getElementById('btn-delete-photo').addEventListener('click', () => {
         if (confirm("Hapus foto profil?")) {
-            // Using a generic empty profile SVG from a reliable source or data URI
             profileImg.src = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
             closeModal();
         }
     });
+
+    // ---- TOAST NOTIFICATION ----
+    function showToast(message, type = "info") {
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icons = { success: 'check-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+        toast.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i> <span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    }
 });
